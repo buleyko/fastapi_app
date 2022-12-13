@@ -2,7 +2,10 @@ from pydantic import (
 	BaseModel, 
 	ValidationError, 
 	validator,
+	Field,
 )
+from typing import Any
+from enum import Enum
 from app.vendors.helpers.validators import (
 	email_validation_check,
 	passwd_validation_check,
@@ -15,17 +18,21 @@ class AccountInItem(BaseModel):
 	last_name: str
 	email: str 
 	username: str
-	sex: bool
+	female: bool
 	articles_count: int | None = None
 
 	class Config:
 		orm_mode = True
+		@classmethod
+		def parse_env_var(cls, field_name: str, raw_val: str) -> Any:
+			if field_name == 'sex':
+				return Sex.FEMALE if raw_val else Sex.MALE
 
 
 class ProfileInBase(BaseModel):
 	first_name: str
 	last_name: str
-	sex: bool = False
+	female: bool
 
 class ProfileIn(ProfileInBase):
 	id: int 

@@ -42,19 +42,18 @@ async def read_accounts(skip: int = 0, limit: int = cfg.items_in_list, db: DB = 
     response_model=sch.AccountInItem,
     status_code=status.HTTP_200_OK
 )
-def read_account(account_id: int, db: DB = Depends(get_db), 
+async def read_account(account_id: int, db: DB = Depends(get_db), 
     account: AccountAuth = Depends(get_current_user)
 ):
     gate.allow(['allow_admin'], account)
     return srv.get_account(db, account_id=account_id)
 
 
-
 @adm_account.post('/create/', 
-    response_model=sch.AccountInCreate,
+    response_model=sch.AccountIn,
     status_code=status.HTTP_201_CREATED
 )
-def create_account(account_data: sch.AccountInCreate, db: DB = Depends(get_db), 
+async def create_account(account_data: sch.AccountInCreate, db: DB = Depends(get_db), 
     account: AccountAuth = Depends(get_current_user)
 ):
     gate.allow(['allow_admin'], account)
@@ -63,10 +62,10 @@ def create_account(account_data: sch.AccountInCreate, db: DB = Depends(get_db),
 
 
 @adm_account.put('/{account_id}/update/', 
-    response_model=sch.AccountInUpdate,
+    response_model=sch.AccountIn,
     status_code=status.HTTP_202_ACCEPTED
 )
-def update_account(account_id: int, account_data: sch.AccountInUpdate, db: DB = Depends(get_db), 
+async def update_account(account_id: int, account_data: sch.AccountInUpdate, db: DB = Depends(get_db), 
     account: AccountAuth = Depends(get_current_user)
 ):
     gate.allow(['allow_admin'], account)

@@ -4,10 +4,7 @@ from fastapi import (
 	HTTPException,
 	status,
 )
-from sqlalchemy import (
-	or_, 
-	insert,
-)
+from sqlalchemy import or_
 from app import models as mdl
 from . import schemas as sch
 from app.config import cfg
@@ -15,12 +12,9 @@ from app.config import cfg
 
 
 def register_new_user(db: DB, account_data: sch.AccountCreate) -> sch.Token:
-	account = db.session.execute(
-		db.select(mdl.Account).filter(or_(
-			mdl.Account.username == account_data.username, 
-			mdl.Account.email == account_data.email
-		))
-	).scalar()
+	account = mdl.Account.get_first_item_by_filter(
+		db, _or=True, email=account_data.email, username=account_data.username
+	)
 	if account is not None:
 		raise HTTPException(
 			status_code=status.HTTP_400_BAD_REQUEST,
@@ -42,8 +36,8 @@ def register_new_user(db: DB, account_data: sch.AccountCreate) -> sch.Token:
 	profile = mdl.Profile(
 		first_name=account_data.profile.first_name,
 		last_name=account_data.profile.first_name,
-		sex=True if account_data.profile.sex == 'female' else False,
-		account_id=account.id
+		female=account_data.profile.female,
+		account_id=account.id,
 	)
 	db.session.add(profile)
 	db.session.commit()
@@ -52,9 +46,7 @@ def register_new_user(db: DB, account_data: sch.AccountCreate) -> sch.Token:
 
 
 def authenticate_user(db: DB, username: str, password: str) -> sch.Token:
-	account = db.session.execute(
-		db.select(mdl.Account).filter_by(username=username)
-	).scalar()
+	account = mdl.Account.get_first_item_by_filter(db, username=username)
 	if not account or not account.verify_password(password):
 		raise HTTPException(
 			status_code=status.HTTP_401_UNAUTHORIZED,

@@ -1,7 +1,6 @@
 from datetime import date 
 from decimal import Decimal
 from enum import Enum
-from typing import Optional
 from pydantic import (
 	BaseModel, 
 	ValidationError, 
@@ -17,14 +16,10 @@ from app.vendors.helpers.validators import (
 )
 
 
-class Sex(str, Enum):
-	MALE = 'male'
-	FEMALE = 'female'
-
 class ProfileInBase(BaseModel):
 	first_name: str
 	last_name: str
-	sex: Sex
+	female: bool
 
 class ProfileIn(ProfileInBase):
 	id: int 

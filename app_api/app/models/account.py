@@ -1,9 +1,11 @@
 from app.vendors.base.database import Base
 from sqlalchemy.orm import relationship
+from sqlalchemy.ext.hybrid import hybrid_property
 from app.vendors.utils.crypto import password_context
 from app.vendors.mixins.model import (
 	TimestampsMixin, 
 	ValidMixin,
+	HelpersMixin,
 )
 from sqlalchemy import (
 	Column, 
@@ -15,7 +17,7 @@ from sqlalchemy import (
 )
 
 
-class Account(ValidMixin, TimestampsMixin, Base):
+class Account(ValidMixin, TimestampsMixin, HelpersMixin, Base):
 	__tablename__ = 'accounts'
 
 	email = Column(
@@ -55,7 +57,7 @@ class Account(ValidMixin, TimestampsMixin, Base):
 
 
 
-class Profile(Base):
+class Profile(HelpersMixin, Base):
 	__tablename__ = 'profiles'
 
 	first_name = Column(
@@ -64,7 +66,7 @@ class Profile(Base):
 	last_name = Column(
 		String(80)
 	)
-	sex = Column(
+	female = Column(
 		Boolean,
 		default=True
 	)
@@ -76,3 +78,11 @@ class Profile(Base):
 		'Account', 
 		back_populates='profile'
 	)
+
+	# @hybrid_property
+	# def sex(self):
+	# 	return 'female' if self._sex else 'male'
+
+	# @sex.setter
+	# def sex(self, v):
+	# 	self._sex = v == 'female'

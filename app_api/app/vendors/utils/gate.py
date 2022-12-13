@@ -9,11 +9,11 @@ def gate_utility():
 		pass
 		
 	def allow(permissions: list[str], account):
-		if not frozenset(account.permissions) <= frozenset(permissions):
+		if not account.permissions or not frozenset(account.permissions) <= frozenset(permissions):
 			raise HTTPException(status_code=status.HTTP_403_FORBIDDEN)
 			
 	def deny(permissions: list[str], account): 
-		if not len(frozenset(account.permissions) & frozenset(permissions)) == 0:
+		if not account.permissions or not len(frozenset(account.permissions) & frozenset(permissions)) == 0:
 			raise HTTPException(status_code=status.HTTP_403_FORBIDDEN)
 
 	_gate.allow = allow 

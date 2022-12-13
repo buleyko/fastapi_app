@@ -48,7 +48,7 @@ class Article(ValidMixin, TimestampsMixin, Base):
 
 
 class ArticleData(Base):
-	__tablename__ = 'articles_datas'
+	__tablename__ = 'articles_data'
 
 	lang = Column(
 		String(10), 

@@ -16,7 +16,7 @@ from app.config import cfg
 def get_accounts(db: DB, skip: int = 0, limit: int = cfg.items_in_list):
 	select_accounts = db.select(
 			mdl.Account.id, mdl.Account.email, mdl.Account.username,
-			mdl.Profile.first_name, mdl.Profile.last_name, mdl.Profile.sex,
+			mdl.Profile.first_name, mdl.Profile.last_name, mdl.Profile.female,
 			func.count(mdl.Article.id).label('articles_count')
 		).\
 		filter_by(is_blocked=False, is_shown=True, is_activated=True).\
@@ -33,7 +33,7 @@ def get_accounts(db: DB, skip: int = 0, limit: int = cfg.items_in_list):
 def get_account(db: DB, account_id: int):
 	select_account = db.select(
 			mdl.Account.id, mdl.Account.email, mdl.Account.username,
-			mdl.Profile.first_name, mdl.Profile.last_name, mdl.Profile.sex,
+			mdl.Profile.first_name, mdl.Profile.last_name, mdl.Profile.female,
 			func.count(mdl.Article.id).label('articles_count')
 		).\
 		filter_by(is_blocked=False, is_shown=True, is_activated=True).\
