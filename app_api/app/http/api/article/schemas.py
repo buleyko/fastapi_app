@@ -2,8 +2,6 @@ from pydantic import BaseModel, Field
 from enum import Enum
 from typing import Any
 
-
-
 class AccountOutBase(BaseModel):
 	first_name: str
 	last_name: str

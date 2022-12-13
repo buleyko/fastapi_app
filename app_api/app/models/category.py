@@ -21,11 +21,11 @@ class Category(ValidMixin, TimestampsMixin, Base):
 
 	name = Column(
 		JSON,
-		default = {'def':''}
+		default = dict
 	)
 	short_desc = Column(
 		JSON,
-		default = {'def':''}
+		default = dict
 	)
 	parent_id = Column(
 		Integer, 

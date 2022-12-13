@@ -32,5 +32,5 @@ async def read_accounts(skip: int = 0, limit: int = cfg.items_in_list, db: DB = 
 @account.get("/{account_id}/show/", 
     response_model=sch.AccountOutItem
 )
-async def read_account(account_id: int, db: DB = Depends(get_db)):
+def read_account(account_id: int, db: DB = Depends(get_db)):
     return srv.get_account(db, account_id=account_id)

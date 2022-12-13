@@ -11,6 +11,7 @@ class Congig(BaseConfig):
     database_url: str = 'sqlite:///./fastapi_test_db.sqlite3'
 
     languages: list = ['eu', 'ru']
+    default_lang = 'en'
 
     jwt_secret: str = '*** change me ***'
     jwt_algorithm: str = 'HS256'
