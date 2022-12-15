@@ -51,7 +51,7 @@ async def read_category(category_id: int, db: DB = Depends(get_db),
 
 
 @adm_category.post('/create/', 
-    response_model=sch.CategoryInCreate,
+    response_model=sch.CategoryIn,
     status_code=status.HTTP_201_CREATED
 )
 async def create_category(category_data: sch.CategoryInCreate, db: DB = Depends(get_db), 
@@ -63,7 +63,7 @@ async def create_category(category_data: sch.CategoryInCreate, db: DB = Depends(
 
 
 @adm_category.put('/{category_id}/update/', 
-    response_model=sch.CategoryInUpdate,
+    response_model=sch.CategoryIn,
     status_code=status.HTTP_202_ACCEPTED
 )
 async def update_category(category_id: int, category_data: sch.CategoryInUpdate, db: DB = Depends(get_db), 

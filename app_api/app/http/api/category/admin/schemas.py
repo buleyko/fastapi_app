@@ -41,16 +41,19 @@ class ParentCategory(BaseModel):
 class CategoryInBase(BaseModel):
 	name: dict
 	short_desc: dict
-	parent: ParentCategory | None = None
+	is_blocked: bool
+	is_shown: bool
+	
 
 class CategoryIn(CategoryInBase):
 	id: int 
+	parent: ParentCategory | None = None
 	class Config:
 		orm_mode = True
 
 class CategoryInCreate(CategoryInBase):
-	parent: int | None = None
+	parent_id: int | None = None
 	
 class CategoryInUpdate(CategoryInBase):
-	parent: int | None = None
+	parent_id: int | None = None
 	
