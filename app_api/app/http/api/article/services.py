@@ -8,42 +8,42 @@ from sqlalchemy import (
 	func, 
 	desc,
 )
+from sqlalchemy.orm import aliased
 from app import models as mdl
 from . import schemas as sch
 from app.config import cfg
 
 
-def get_accounts(db: DB, skip: int = 0, limit: int = cfg.items_in_list):
-	select_accounts = db.select(
-			mdl.Account.id, mdl.Account.email, mdl.Account.username,
-			mdl.Profile.first_name, mdl.Profile.last_name, mdl.Profile.female,
-			func.count(mdl.Article.id).label('articles_count')
+
+def get_articles(db: DB, skip: int = 0, limit: int = cfg.items_in_list, lang: str = cfg.default_lang):
+	select_articles = db.select(
+			mdl.Article.id, 
+			mdl.Account.username.label('user'), 
+			mdl.Category.name.label('category_name'),
+			mdl.ArticleData.name.label('name'),
+			func.count(mdl.Comment.id).label('comments_count')
 		).\
-		filter_by(is_blocked=False, is_shown=True, is_activated=True).\
-		outerjoin(mdl.Account.articles).outerjoin(mdl.Account.profile).\
-		group_by(mdl.Account.username).\
+		filter_by(is_blocked=False, is_shown=True).\
+		outerjoin(mdl.Category).\
+		outerjoin(mdl.Account).\
+		outerjoin(mdl.ArticleData).\
+		filter(mdl.ArticleData.lang==lang).\
+		outerjoin(mdl.Article.comments).\
+		group_by(mdl.Article.id).\
 		offset(skip).limit(limit).\
-		order_by(desc('created_at'))
-	accounts = db.session.execute(select_accounts).all()
-
-	return accounts
-
+		order_by(desc(mdl.Article.created_at))
+	articles = db.session.execute(select_articles).all()
+	return articles
 
 
-def get_account(db: DB, account_id: int):
-	select_account = db.select(
-			mdl.Account.id, mdl.Account.email, mdl.Account.username,
-			mdl.Profile.first_name, mdl.Profile.last_name, mdl.Profile.female,
-			func.count(mdl.Article.id).label('articles_count')
-		).\
-		filter_by(is_blocked=False, is_shown=True, is_activated=True).\
-		filter_by(id=account_id).\
-		outerjoin(mdl.Account.articles).outerjoin(mdl.Account.profile)
-	try:
-		account = db.session.execute(select_account).one()
-	except NoResultFound:
+
+def get_article(db: DB, article_id: int):
+	select_article = db.select(mdl.Article).filter_by(id=article_id).\
+		filter_by(is_blocked=False, is_shown=True)
+	article = db.session.execute(select_article).scalar()
+	if article is None:
 		raise HTTPException(
 			status_code=status.HTTP_404_NOT_FOUND, 
-			detail='Account not found'
+			detail='Category not found'
 		)
-	return account
+	return article

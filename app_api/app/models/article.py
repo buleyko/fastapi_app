@@ -6,6 +6,7 @@ from sqlalchemy.orm import (
 from app.vendors.mixins.model import (
 	TimestampsMixin, 
 	ValidMixin,
+	HelpersMixin,
 )
 from sqlalchemy import (
 	Column, 
@@ -17,7 +18,7 @@ from sqlalchemy import (
 )
 
 
-class Article(ValidMixin, TimestampsMixin, Base):
+class Article(ValidMixin, TimestampsMixin, HelpersMixin, Base):
 	__tablename__ = 'articles'
 
 	category_id = Column(
@@ -47,7 +48,7 @@ class Article(ValidMixin, TimestampsMixin, Base):
 
 
 
-class ArticleData(Base):
+class ArticleData(HelpersMixin, Base):
 	__tablename__ = 'articles_data'
 
 	lang = Column(

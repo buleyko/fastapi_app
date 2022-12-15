@@ -19,67 +19,67 @@ from . import schemas as sch
 from app.config import cfg
 
 
-adm_account = APIRouter(
-    prefix = '/account',
-    tags=['account'], 
+adm_article = APIRouter(
+    prefix = '/article',
+    tags=['article'], 
 )
 
 
-
-@adm_account.post('/list/', 
-    response_model=list[sch.AccountInItem], 
+@adm_article.post('/list/', 
+    response_model=list[sch.ArticleInItem], 
     status_code=status.HTTP_200_OK
 )
-async def read_accounts(skip: int = 0, limit: int = cfg.items_in_list, db: DB = Depends(get_db),
+async def read_articles(skip: int = 0, limit: int = cfg.items_in_list, 
+    lang: str = cfg.default_lang, db: DB = Depends(get_db),
     account: AccountAuth = Depends(get_current_user)
 ):
-    gate.allow(['allow_admin'], account)
-    return srv.get_accounts(db, skip=skip, limit=limit)
+    return srv.get_articles(db, skip=skip, limit=limit, lang=lang)
 
 
 
-@adm_account.get("/{account_id}/show/", 
-    response_model=sch.AccountInItem,
+@adm_article.get('/{article_id}/show/', 
+    response_model=sch.ArticleIn,
     status_code=status.HTTP_200_OK
 )
-async def read_account(account_id: int, db: DB = Depends(get_db), 
+def read_article(article_id: int, db: DB = Depends(get_db),
     account: AccountAuth = Depends(get_current_user)
 ):
-    gate.allow(['allow_admin'], account)
-    return srv.get_account(db, account_id=account_id)
+    return srv.get_article(db, article_id=article_id)
 
 
-@adm_account.post('/create/', 
-    response_model=sch.AccountIn,
+
+@adm_article.post('/create/', 
+    response_model=sch.ArticleIn,
     status_code=status.HTTP_201_CREATED
 )
-async def create_account(account_data: sch.AccountInCreate, db: DB = Depends(get_db), 
+async def create_article(article_data: sch.ArticleInCreate, db: DB = Depends(get_db), 
     account: AccountAuth = Depends(get_current_user)
 ):
     gate.allow(['allow_admin'], account)
-    return srv.create_account(db, account_data=account_data)
+    return srv.create_article(db, article_data=article_data)
 
 
 
-@adm_account.put('/{account_id}/update/', 
-    response_model=sch.AccountIn,
+
+@adm_article.put('/{article_id}/update/', 
+    response_model=sch.ArticleIn,
     status_code=status.HTTP_202_ACCEPTED
 )
-async def update_account(account_id: int, account_data: sch.AccountInUpdate, db: DB = Depends(get_db), 
+async def update_article(article_id: int, article_data: sch.ArticleInUpdate, db: DB = Depends(get_db), 
     account: AccountAuth = Depends(get_current_user)
 ):
     gate.allow(['allow_admin'], account)
-    return srv.update_account(db, account_id=account_id, account_data=account_data)
+    return srv.update_article(db, article_id=article_id, article_data=article_data)
 
 
 
-@adm_account.delete('/{account_id}/delete/', 
-    response_model=sch.AccountIn,
+@adm_article.delete('/{article_id}/delete/', 
+    response_model=sch.ArticleIn,
 )
-async def delete_account(account_id: int, db: DB = Depends(get_db),
+async def delete_article(article_id: int, db: DB = Depends(get_db),
     account: AccountAuth = Depends(get_current_user)
 ):
     gate.allow(['allow_admin'], account)
-    srv.delete_account(db, account_id=account_id)
+    srv.delete_article(db, article_id=article_id)
     return Response(status_code=status.HTTP_204_NO_CONTENT)
 

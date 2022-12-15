@@ -9,6 +9,7 @@ from sqlalchemy import (
 	desc,
 	or_,
 )
+from sqlalchemy.orm import aliased
 from app import models as mdl
 from . import schemas as sch
 from app.config import cfg
@@ -16,112 +17,105 @@ from app.config import cfg
 
 
 
-def get_accounts(db: DB, skip: int = 0, limit: int = cfg.items_in_list):
-	select_accounts = db.select(
-			mdl.Account.id, mdl.Account.email, mdl.Account.username,
-			mdl.Profile.first_name, mdl.Profile.last_name, mdl.Profile.female,
-			func.count(mdl.Article.id).label('articles_count')
+def get_articles(db: DB, skip: int = 0, limit: int = cfg.items_in_list, lang: str = cfg.default_lang):
+	# D = aliased(mdl.ArticleData)
+	select_articles = db.select(
+			mdl.Article.id, 
+			mdl.Account.username.label('user'), 
+			mdl.Category.name.label('category_name'),
+			mdl.ArticleData.name.label('name'),
+			func.count(mdl.Comment.id).label('comments_count')
 		).\
-		outerjoin(mdl.Account.articles).outerjoin(mdl.Account.profile).\
-		group_by(mdl.Account.username).\
+		outerjoin(mdl.Category).\
+		outerjoin(mdl.Account).\
+		outerjoin(mdl.ArticleData, 
+			mdl.ArticleData.article_id==mdl.Article.id, 
+			mdl.ArticleData.lang==lang
+		).\
+		outerjoin(mdl.Article.comments).\
+		group_by(mdl.Article.id).\
 		offset(skip).limit(limit).\
-		order_by(desc('created_at'))
-	accounts = db.session.execute(select_accounts).all()
+		order_by(desc(mdl.Article.created_at))
+	articles = db.session.execute(select_articles).all()
+	return articles
 
-	return accounts
 
 
-def get_account(db: DB, account_id: int):
-	select_account = db.select(
-			mdl.Account.id, mdl.Account.email, mdl.Account.username,
-			mdl.Profile.first_name, mdl.Profile.last_name, mdl.Profile.female,
-			func.count(mdl.Article.id).label('articles_count')
-		).\
-		filter_by(id=account_id).\
-		outerjoin(mdl.Account.articles).outerjoin(mdl.Account.profile)
-	try:
-		account = db.session.execute(select_account).one()
-	except NoResultFound:
+def get_article(db: DB, article_id: int):
+	select_article = db.select(mdl.Article).filter_by(id=article_id).\
+		filter_by(is_blocked=False, is_shown=True)
+	article = db.session.execute(select_article).scalar()
+	if article is None:
 		raise HTTPException(
 			status_code=status.HTTP_404_NOT_FOUND, 
-			detail='Account not found'
+			detail='Category not found'
 		)
-	return account
+	return article
 
 
-def create_account(db: DB, account_data: sch.AccountInCreate):
-	account = mdl.Account.get_first_item_by_filter(
-		db, _or=True, email=account_data.email, username=account_data.username
+def create_article(db: DB, article_data: sch.ArticleInCreate):
+	new_article = mdl.Article(
+		category_id = article_data.category_id,
+		account_id = article_data.account_id,
 	)
-	if account is not None:
-		raise HTTPException(
-			status_code=status.HTTP_400_BAD_REQUEST,
-			detail='Username or email not unique',
-		) from None
-
-	new_account = mdl.Account(
-		email=account_data.email,
-		username=account_data.username,
-		is_blocked=account_data.is_blocked,
-		is_shown=account_data.is_shown,
-		password=mdl.Account.get_hashed_password(account_data.password),
-	)
-	db.session.add(new_account)
+	db.session.add(new_article)
 	db.session.commit()
-	db.session.refresh(new_account)
+	db.session.refresh(new_article)
 
-	new_profile = mdl.Profile(
-		first_name=account_data.profile.first_name,
-		last_name=account_data.profile.first_name,
-		female=account_data.profile.female,
-		account_id=new_account.id,
-	)
-	db.session.add(new_profile)
+	for data in article_data.data:
+		new_data = mdl.ArticleData(
+			lang = data.lang,
+			name = data.name,
+			short_desc = data.short_desc,
+			body = data.body,
+			article_id = new_article.id,
+		)
+		db.session.add(new_data)
 	db.session.commit()
-	return new_account
+
+	return new_article
 
 
 
-def update_account(db: DB, account_id: int, account_data: sch.AccountInCreate):
-	account = mdl.Account.get_first_item_by_filter(db, id=account_id)
-	if account is None:
+def update_article(db: DB, article_id: int, article_data: sch.ArticleInUpdate):
+	article = mdl.Article.get_first_item_by_filter(db, id=article_id)
+	if article is None:
 		raise HTTPException(
 			status_code=status.HTTP_404_NOT_FOUND, 
-			detail='Account not found'
+			detail='Article not found'
 		) from None
-	
-	account.email=account_data.email
-	account.username=account_data.username
-	account.is_blocked=account_data.is_blocked
-	account.is_shown=account_data.is_shown
-	account.password=mdl.Account.get_hashed_password(account_data.password)
+
+	article.category_id = article_data.category_id,
+	article.account_id = article_data.account_id,
 	db.session.add(account)
 	db.session.commit()
 	db.session.refresh(account)
 
-	profile = mdl.Profile.get_first_item_by_filter(db, account_id=account.id)
-	if profile is not None:
-		profile.first_name=account_data.profile.first_name
-		profile.last_name=account_data.profile.first_name
-		female=account_data.profile.female
-		db.session.add(profile)
-		db.session.commit()
-	
-	return account
+	for data in article_data.data:
+		art_data = mdl.ArticleData.get_first_item_by_filter(db, id=article.id, lang=data.lang)
+		if art_data is not None:
+			art_data.name = data.name
+			art_data.short_desc = data.short_desc
+			art_data.body = data.body
+			db.session.add(art_data)
+	db.session.commit()
+
+	return article
 
 
-def delete_account(db: DB, account_id: int):
-	account = mdl.Account.get_first_item_by_filter(db, id=account_id)
-	if not account:
+
+def delete_article(db: DB, article_id: int):
+	article = mdl.Article.get_first_item_by_filter(db, id=article_id)
+	if not article:
 		raise HTTPException(
 			status_code=status.HTTP_404_NOT_FOUND, 
 			detail='Account not found'
 		) from None
-	profile = mdl.Profile.get_first_item_by_filter(db, account_id=account.id)
-	if profile is not None:
-		db.session.delete(profile)
-	# account.delete(synchronize_session=False)
-	db.session.delete(account)
+	select_data = db.select(mdl.ArticleData).filter_by(id=article.id)
+	article_data = db.session.execute(select_data).scalar()
+	for data in article_data:
+		db.session.delete(data)
+	db.session.delete(article)
 	db.session.commit()
 
 

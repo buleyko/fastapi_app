@@ -7,8 +7,11 @@ from fastapi import (
 from sqlalchemy import (
 	func, 
 	desc,
+	case,
+	literal_column,
 )
 from sqlalchemy.orm import aliased
+from sqlalchemy.sql.functions import coalesce
 from app import models as mdl
 from . import schemas as sch
 from app.config import cfg
@@ -30,17 +33,21 @@ def get_categories(db: DB, skip: int = 0, limit: int = cfg.items_in_list):
 	# P = aliased(mdl.Category)
 	# C = aliased(mdl.Category)
 	# A = aliased(mdl.Article)
-	# select_categories2 = db.select( # func.coalesce()
+	# # func.count(C.id).label('child_count'),
+	# # func.coalesce(Child.naughty, 0)
+	# # func.count(case([(C.id)], else_=literal_column('NULL'))).label('child_count'),
+	# select_categories2 = db.select(
 	# 		P.id, P.name, P.short_desc,
 	# 		func.count(C.id).label('child_count'),
-	# 		func.count(A.id).label('articles_count'),
+	# 		func.count(A.account_id).label('articles_count'),
 	# 	).\
 	# 	filter_by(is_blocked=False, is_shown=True).\
-	# 	outerjoin(A, A.category_id==P.id).\
 	# 	outerjoin(C, C.parent_id==P.id).\
+	# 	outerjoin(A, A.category_id==P.id).\
 	# 	group_by(P.id).\
 	# 	offset(skip).limit(limit).\
-	# 	order_by(desc(P.created_at)).distinct()
+	# 	order_by(desc(P.created_at)).\
+	# 	distinct()
 	# categories2 = db.session.execute(select_categories2).all()
 	# for q in categories2:
 	# 	print(q)

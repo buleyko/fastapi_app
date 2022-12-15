@@ -45,7 +45,7 @@ class CategoryBase(BaseModel):
 class CategoryOut(CategoryBase):
 	id: int
 	parent: ParentCategory | None = None
-	articles: list[Article] = []
+	# articles: list[Article] = []
 	# children: list[ChildCategory] = []
 	class Config:
 		orm_mode = True
