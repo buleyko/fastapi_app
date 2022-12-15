@@ -6,6 +6,7 @@ from pydantic import BaseModel
 class CategoryOutBase(BaseModel):
 	name: dict
 	short_desc: dict
+	# child_count: int | None = None
 	articles_count: int | None = None
 
 class CategoryOutItem(CategoryOutBase):
@@ -30,14 +31,22 @@ class ParentCategory(BaseModel):
 	class Config:
 		orm_mode = True
 
+class ChildCategory(BaseModel):
+	id: int
+	name: dict
+	short_desc: dict
+	class Config:
+		orm_mode = True
+
 class CategoryBase(BaseModel):
 	name: dict
 	short_desc: dict
 
-class Category(CategoryBase):
+class CategoryOut(CategoryBase):
 	id: int
 	parent: ParentCategory | None = None
 	articles: list[Article] = []
+	# children: list[ChildCategory] = []
 	class Config:
 		orm_mode = True
 

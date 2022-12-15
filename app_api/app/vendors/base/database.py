@@ -10,6 +10,7 @@ from app.config import cfg
 engine = create_engine(
     cfg.database_url,
     connect_args={'check_same_thread': False},
+    echo=True
 )
 
 Session = sessionmaker(

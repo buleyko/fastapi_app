@@ -6,6 +6,7 @@ from sqlalchemy.orm import (
 from app.vendors.mixins.model import (
 	TimestampsMixin, 
 	ValidMixin,
+	HelpersMixin,
 )
 from sqlalchemy import (
 	Column, 
@@ -16,7 +17,7 @@ from sqlalchemy import (
 )
 
 
-class Category(ValidMixin, TimestampsMixin, Base):
+class Category(ValidMixin, TimestampsMixin, HelpersMixin, Base):
 	__tablename__ = 'categories'
 
 	name = Column(
@@ -30,7 +31,6 @@ class Category(ValidMixin, TimestampsMixin, Base):
 	parent_id = Column(
 		Integer, 
 		ForeignKey('categories.id'),
-		nullable=True,
 	)
 	children = relationship(
 		'Category', 
@@ -40,3 +40,9 @@ class Category(ValidMixin, TimestampsMixin, Base):
 		'Article', 
 		back_populates='category'
 	)
+
+	# def __str__(self, level=0):
+	# 	ret = f"{'    ' * level} {repr(self.name)} \n"
+	# 	for child in self.children:
+	# 		ret += child.__str__(level + 1)
+	# 	return ret

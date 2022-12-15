@@ -19,14 +19,13 @@ class AccountInItem(BaseModel):
 	email: str 
 	username: str
 	female: bool
+	is_blocked: bool
+	is_shown: bool
+	is_activated: bool
 	articles_count: int | None = None
 
 	class Config:
 		orm_mode = True
-		@classmethod
-		def parse_env_var(cls, field_name: str, raw_val: str) -> Any:
-			if field_name == 'sex':
-				return Sex.FEMALE if raw_val else Sex.MALE
 
 
 class ProfileInBase(BaseModel):

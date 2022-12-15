@@ -1,7 +1,10 @@
 from app.vendors.base.database import Base
-from sqlalchemy.orm import relationship
-from sqlalchemy.ext.hybrid import hybrid_property
 from app.vendors.utils.crypto import password_context
+from sqlalchemy.orm import (
+	relationship,
+	column_property,
+	synonym,
+)
 from app.vendors.mixins.model import (
 	TimestampsMixin, 
 	ValidMixin,
@@ -79,7 +82,11 @@ class Profile(HelpersMixin, Base):
 		back_populates='profile'
 	)
 
-	# @hybrid_property
+	full_name = column_property(first_name + ' ' + last_name)
+
+	# gen = synonym('female')
+
+	# @property
 	# def sex(self):
 	# 	return 'female' if self._sex else 'male'
 

@@ -1,3 +1,4 @@
+from app.vendors.base.router import AppRoute
 from fastapi import (
     Depends, 
     APIRouter, 
@@ -15,6 +16,7 @@ from app.config import cfg
 
 
 account = APIRouter(
+    route_class=AppRoute, 
     prefix = '/account',
     tags=['account'], 
 )
@@ -23,14 +25,15 @@ account = APIRouter(
 
 @account.post('/list/', 
     response_model=list[sch.AccountOutItem], 
-    status_code=status. HTTP_200_OK
+    status_code=status.HTTP_200_OK
 )
 async def read_accounts(skip: int = 0, limit: int = cfg.items_in_list, db: DB = Depends(get_db)):
     return srv.get_accounts(db, skip=skip, limit=limit)
 
 
-@account.get("/{account_id}/show/", 
-    response_model=sch.AccountOutItem
+@account.get('/{account_id}/show/', 
+    response_model=sch.AccountOutItem,
+    status_code=status.HTTP_200_OK
 )
 async def read_account(account_id: int, db: DB = Depends(get_db)):
     return srv.get_account(db, account_id=account_id)

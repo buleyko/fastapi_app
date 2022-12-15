@@ -1,4 +1,5 @@
 from sqlalchemy.orm import declarative_mixin
+from datetime import timezone
 from sqlalchemy import (
     func, 
     or_,
@@ -20,6 +21,11 @@ class TimestampsMixin:
     	DateTime, 
     	nullable=True,
     )
+    # updated_at = Column(
+    #     DateTime(timezone=True), 
+    #     server_default=func.now(), 
+    #     onupdate=func.now()
+    # )
 
 
 @declarative_mixin

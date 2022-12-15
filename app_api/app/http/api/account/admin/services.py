@@ -19,6 +19,7 @@ from app.config import cfg
 def get_accounts(db: DB, skip: int = 0, limit: int = cfg.items_in_list):
 	select_accounts = db.select(
 			mdl.Account.id, mdl.Account.email, mdl.Account.username,
+			mdl.Account.is_blocked, mdl.Account.is_shown, mdl.Account.is_activated,
 			mdl.Profile.first_name, mdl.Profile.last_name, mdl.Profile.female,
 			func.count(mdl.Article.id).label('articles_count')
 		).\
@@ -34,6 +35,7 @@ def get_accounts(db: DB, skip: int = 0, limit: int = cfg.items_in_list):
 def get_account(db: DB, account_id: int):
 	select_account = db.select(
 			mdl.Account.id, mdl.Account.email, mdl.Account.username,
+			mdl.Account.is_blocked, mdl.Account.is_shown, mdl.Account.is_activated,
 			mdl.Profile.first_name, mdl.Profile.last_name, mdl.Profile.female,
 			func.count(mdl.Article.id).label('articles_count')
 		).\
@@ -82,7 +84,7 @@ def create_account(db: DB, account_data: sch.AccountInCreate):
 
 
 
-def update_account(db: DB, account_id: int, account_data: sch.AccountInCreate):
+def update_account(db: DB, account_id: int, account_data: sch.AccountInUpdate):
 	account = mdl.Account.get_first_item_by_filter(db, id=account_id)
 	if account is None:
 		raise HTTPException(

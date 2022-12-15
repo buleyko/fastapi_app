@@ -19,67 +19,68 @@ from . import schemas as sch
 from app.config import cfg
 
 
-adm_account = APIRouter(
-    prefix = '/account',
-    tags=['account'], 
+adm_category = APIRouter(
+    prefix = '/category',
+    tags = ['category'], 
 )
 
 
 
-@adm_account.post('/list/', 
-    response_model=list[sch.AccountInItem], 
+@adm_category.post('/list/', 
+    response_model=list[sch.CategoryInItem], 
     status_code=status.HTTP_200_OK
 )
-async def read_accounts(skip: int = 0, limit: int = cfg.items_in_list, db: DB = Depends(get_db),
+async def read_categories(skip: int = 0, limit: int = cfg.items_in_list, db: DB = Depends(get_db),
     account: AccountAuth = Depends(get_current_user)
 ):
     gate.allow(['allow_admin'], account)
-    return srv.get_accounts(db, skip=skip, limit=limit)
+    return srv.get_categories(db, skip=skip, limit=limit)
 
 
 
-@adm_account.get("/{account_id}/show/", 
-    response_model=sch.AccountInItem,
+@adm_category.get('/{category_id}/show/', 
+    response_model=sch.CategoryIn,
     status_code=status.HTTP_200_OK
 )
-async def read_account(account_id: int, db: DB = Depends(get_db), 
+async def read_category(category_id: int, db: DB = Depends(get_db), 
     account: AccountAuth = Depends(get_current_user)
 ):
     gate.allow(['allow_admin'], account)
-    return srv.get_account(db, account_id=account_id)
+    return srv.get_category(db, category_id=category_id)
 
 
-@adm_account.post('/create/', 
-    response_model=sch.AccountIn,
+
+@adm_category.post('/create/', 
+    response_model=sch.CategoryInCreate,
     status_code=status.HTTP_201_CREATED
 )
-async def create_account(account_data: sch.AccountInCreate, db: DB = Depends(get_db), 
+async def create_category(category_data: sch.CategoryInCreate, db: DB = Depends(get_db), 
     account: AccountAuth = Depends(get_current_user)
 ):
     gate.allow(['allow_admin'], account)
-    return srv.create_account(db, account_data=account_data)
+    return srv.create_category(db, category_data=category_data)
 
 
 
-@adm_account.put('/{account_id}/update/', 
-    response_model=sch.AccountIn,
+@adm_category.put('/{category_id}/update/', 
+    response_model=sch.CategoryInUpdate,
     status_code=status.HTTP_202_ACCEPTED
 )
-async def update_account(account_id: int, account_data: sch.AccountInUpdate, db: DB = Depends(get_db), 
+async def update_category(category_id: int, category_data: sch.CategoryInUpdate, db: DB = Depends(get_db), 
     account: AccountAuth = Depends(get_current_user)
 ):
     gate.allow(['allow_admin'], account)
-    return srv.update_account(db, account_id=account_id, account_data=account_data)
+    return srv.update_category(db, category_id=category_id, category_data=category_data)
 
 
 
-@adm_account.delete('/{account_id}/delete/', 
-    response_model=sch.AccountIn,
+@adm_category.delete('/{category_id}/delete/', 
+    response_model=sch.CategoryIn,
 )
-async def delete_account(account_id: int, db: DB = Depends(get_db),
+async def delete_category(category_id: int, db: DB = Depends(get_db),
     account: AccountAuth = Depends(get_current_user)
 ):
     gate.allow(['allow_admin'], account)
-    srv.delete_account(db, account_id=account_id)
+    srv.delete_category(db, category_id=category_id)
     return Response(status_code=status.HTTP_204_NO_CONTENT)
 

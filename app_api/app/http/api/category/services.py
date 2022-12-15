@@ -8,6 +8,7 @@ from sqlalchemy import (
 	func, 
 	desc,
 )
+from sqlalchemy.orm import aliased
 from app import models as mdl
 from . import schemas as sch
 from app.config import cfg
@@ -25,6 +26,25 @@ def get_categories(db: DB, skip: int = 0, limit: int = cfg.items_in_list):
 		offset(skip).limit(limit).\
 		order_by(desc('created_at'))
 	categories = db.session.execute(select_categories).all()
+
+	# P = aliased(mdl.Category)
+	# C = aliased(mdl.Category)
+	# A = aliased(mdl.Article)
+	# select_categories2 = db.select( # func.coalesce()
+	# 		P.id, P.name, P.short_desc,
+	# 		func.count(C.id).label('child_count'),
+	# 		func.count(A.id).label('articles_count'),
+	# 	).\
+	# 	filter_by(is_blocked=False, is_shown=True).\
+	# 	outerjoin(A, A.category_id==P.id).\
+	# 	outerjoin(C, C.parent_id==P.id).\
+	# 	group_by(P.id).\
+	# 	offset(skip).limit(limit).\
+	# 	order_by(desc(P.created_at)).distinct()
+	# categories2 = db.session.execute(select_categories2).all()
+	# for q in categories2:
+	# 	print(q)
+
 	return categories
 
 
@@ -47,7 +67,7 @@ def get_category_articles(db: DB, category_id: int, skip: int = 0, limit: int = 
 		filter_by(category_id=category_id).\
 		filter_by(is_blocked=False, is_shown=True).\
 		outerjoin(mdl.Article.data).\
-		filter_by(lang='en').\
+		filter_by(lang=lang).\
 		offset(skip).limit(limit).\
 		order_by(desc('created_at'))
 	articles = db.session.execute(select_articles).all()
