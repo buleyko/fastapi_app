@@ -91,12 +91,3 @@ class Comment(TimestampsMixin, Base):
 		'Article', 
 		back_populates='comments',
 	)
-	parent_id = Column(
-		Integer, 
-		ForeignKey('comments.id'),
-		nullable=True,
-	)
-	children = relationship(
-		'Comment', 
-		backref=backref('parent', remote_side='Comment.id')
-	)

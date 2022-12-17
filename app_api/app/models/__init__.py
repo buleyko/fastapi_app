@@ -1,5 +1,7 @@
-from .category import Category, Base
-from .tag import Tag
+from .category import (
+	Category, 
+	Base,
+)
 from .article import (
 	Article, 
 	ArticleData,
@@ -8,4 +10,8 @@ from .article import (
 from .account import (
 	Account, 
 	Profile,
+)
+from .tag import (
+	Tag, 
+	TagItem,
 )

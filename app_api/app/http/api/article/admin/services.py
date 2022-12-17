@@ -18,12 +18,13 @@ from app.config import cfg
 
 
 def get_articles(db: DB, skip: int = 0, limit: int = cfg.items_in_list, lang: str = cfg.default_lang):
-	# D = aliased(mdl.ArticleData)
+	D = aliased(mdl.ArticleData)
 	select_articles = db.select(
 			mdl.Article.id, 
 			mdl.Account.username.label('user'), 
 			mdl.Category.name.label('category_name'),
 			mdl.ArticleData.name.label('name'),
+			func.group_concat(D.lang.distinct()).label('langs'),
 			func.count(mdl.Comment.id).label('comments_count')
 		).\
 		outerjoin(mdl.Category).\
@@ -32,6 +33,7 @@ def get_articles(db: DB, skip: int = 0, limit: int = cfg.items_in_list, lang: st
 			mdl.ArticleData.article_id==mdl.Article.id, 
 			mdl.ArticleData.lang==lang
 		).\
+		outerjoin(D, D.article_id==mdl.Article.id).\
 		outerjoin(mdl.Article.comments).\
 		group_by(mdl.Article.id).\
 		offset(skip).limit(limit).\
@@ -72,7 +74,6 @@ def create_article(db: DB, article_data: sch.ArticleInCreate):
 		)
 		db.session.add(new_data)
 	db.session.commit()
-
 	return new_article
 
 
@@ -99,7 +100,6 @@ def update_article(db: DB, article_id: int, article_data: sch.ArticleInUpdate):
 			art_data.body = data.body
 			db.session.add(art_data)
 	db.session.commit()
-
 	return article
 
 

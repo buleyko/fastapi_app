@@ -11,6 +11,7 @@ class ArticleInItem(BaseModel):
 	name: str | None
 	user: str
 	category_name: dict
+	langs: str | None
 	comments_count: int | None = None
 	class Config:
 		orm_mode = True
