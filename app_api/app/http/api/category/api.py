@@ -47,4 +47,3 @@ async def read_category_articles(category_id: int, skip: int = 0, limit: int = c
     lang: str = cfg.default_lang, db: DB = Depends(get_db)
 ):
     return srv.get_category_articles(db, category_id=category_id, skip=skip, limit=limit, lang=lang)
-

@@ -27,17 +27,14 @@ class Congig(BaseConfig):
     items_in_list: int = 15
 
     
-    MAIL_SERVER: str = 'localhost'
-    MAIL_PORT: int = 1025
-    MAIL_USE_TLS: bool = False
-    MAIL_USE_SSL: bool = False
-    MAIL_DEBUG: bool = True
-    MAIL_USERNAME: str = ''
-    MAIL_PASSWORD: str = ''
-    MAIL_DEFAULT_SENDER: NameEmail = 'admin@mail.com'
-    # MAIL_MAX_EMAILS = None
-    # MAIL_SUPPRESS_SEND = True
-    # MAIL_ASCII_ATTACHMENTS = False
+    mail_server: str = 'localhost'
+    mail_port: int = 1025
+    mail_use_tls: bool = False
+    mail_use_ssl: bool = False
+    mail_username: str = ''
+    mail_password: str = ''
+    mail_default_sender: NameEmail = 'admin@mail.com'
+    mail_max_emails = None
     
     
     broker: RedisDsn = 'redis://0.0.0.0:6379/0'

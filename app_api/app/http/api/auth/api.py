@@ -14,6 +14,7 @@ from app.vendors.dependencies.database import (
 from .utils.jwt import get_current_user
 from . import services as srv
 from . import schemas as sch
+from app.config import cfg
 
 
 auth = APIRouter(

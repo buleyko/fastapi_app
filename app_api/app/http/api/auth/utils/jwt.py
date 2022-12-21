@@ -58,6 +58,7 @@ def verify_token(token: str) -> sch.Account:
 
 	return account
 
+
 def create_token(account: mdl.Account) -> sch.Token:
 	account_data = sch.Account.from_orm(account)
 	now = datetime.utcnow()

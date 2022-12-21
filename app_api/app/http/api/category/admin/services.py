@@ -85,94 +85,94 @@ def delete_category(db: DB, category_id: int):
 
 
 '''
-class OperationsService:
+class ItemsService:
     def __init__(self, session: Session = Depends(get_session)):
         self.session = session
 
-    def get_many(self, user_id: int) -> List[tables.Operation]:
-        operations = (
+    def get_many(self, user_id: int) -> List[tables.Item]:
+        items = (
             self.session
-            .query(tables.Operation)
-            .filter(tables.Operation.user_id == user_id)
+            .query(tables.Item)
+            .filter(tables.Item.user_id == user_id)
             .order_by(
-                tables.Operation.date.desc(),
-                tables.Operation.id.desc(),
+                tables.Item.date.desc(),
+                tables.Item.id.desc(),
             )
             .all()
         )
-        return operations
+        return items
 
     def get(
         self,
         user_id: int,
-        operation_id: int
-    ) -> tables.Operation:
-        operation = self._get(user_id, operation_id)
-        return operation
+        Item_id: int
+    ) -> tables.Item:
+        Item = self._get(user_id, Item_id)
+        return Item
 
     def create_many(
         self,
         user_id: int,
-        operations_data: List[models.OperationCreate],
-    ) -> List[tables.Operation]:
-        operations = [
-            tables.Operation(
-                **operation_data.dict(),
+        Items_data: List[models.ItemCreate],
+    ) -> List[tables.Item]:
+        items = [
+            tables.Item(
+                **Item_data.dict(),
                 user_id=user_id,
             )
-            for operation_data in operations_data
+            for Item_data in Items_data
         ]
-        self.session.add_all(operations)
+        self.session.add_all(items)
         self.session.commit()
-        return operations
+        return items
 
     def create(
         self,
         user_id: int,
-        operation_data: models.OperationCreate,
-    ) -> tables.Operation:
-        operation = tables.Operation(
-            **operation_data.dict(),
+        Item_data: models.ItemCreate,
+    ) -> tables.Item:
+        Item = tables.Item(
+            **Item_data.dict(),
             user_id=user_id,
         )
-        self.session.add(operation)
+        self.session.add(Item)
         self.session.commit()
-        return operation
+        return Item
 
     def update(
         self,
         user_id: int,
-        operation_id: int,
-        operation_data: models.OperationUpdate,
-    ) -> tables.Operation:
-        operation = self._get(user_id, operation_id)
-        for field, value in operation_data:
-            setattr(operation, field, value)
+        Item_id: int,
+        Item_data: models.ItemUpdate,
+    ) -> tables.Item:
+        Item = self._get(user_id, Item_id)
+        for field, value in Item_data:
+            setattr(Item, field, value)
         self.session.commit()
-        return operation
+        return Item
 
     def delete(
         self,
         user_id: int,
-        operation_id: int,
+        Item_id: int,
     ):
-        operation = self._get(user_id, operation_id)
-        self.session.delete(operation)
+        Item = self._get(user_id, Item_id)
+        self.session.delete(Item)
         self.session.commit()
 
-    def _get(self, user_id: int, operation_id: int) -> Optional[tables.Operation]:
-        operation = (
+    def _get(self, user_id: int, Item_id: int) -> Optional[tables.Item]:
+        Item = (
             self.session
-            .query(tables.Operation)
+            .query(tables.Item)
             .filter(
-                tables.Operation.user_id == user_id,
-                tables.Operation.id == operation_id,
+                tables.Item.user_id == user_id,
+                tables.Item.id == Item_id,
             )
             .first()
         )
-        if not operation:
+        if not Item:
             raise HTTPException(status.HTTP_404_NOT_FOUND)
-        return operation
+        return Item
 
 '''
 

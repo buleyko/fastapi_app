@@ -25,15 +25,18 @@ adm_category = APIRouter(
 )
 
 
+async def get_current_account_by_gate(account: AccountAuth = Depends(get_current_user)):
+    gate.allow(['allow_admin'], account):
+    return account
+
 
 @adm_category.post('/list/', 
     response_model=list[sch.CategoryInItem], 
     status_code=status.HTTP_200_OK
 )
 async def read_categories(skip: int = 0, limit: int = cfg.items_in_list, db: DB = Depends(get_db),
-    account: AccountAuth = Depends(get_current_user)
+    account: AccountAuth = Depends(get_current_account_by_gate)
 ):
-    gate.allow(['allow_admin'], account)
     return srv.get_categories(db, skip=skip, limit=limit)
 
 
@@ -43,9 +46,8 @@ async def read_categories(skip: int = 0, limit: int = cfg.items_in_list, db: DB 
     status_code=status.HTTP_200_OK
 )
 async def read_category(category_id: int, db: DB = Depends(get_db), 
-    account: AccountAuth = Depends(get_current_user)
+    account: AccountAuth = Depends(get_current_account_by_gate)
 ):
-    gate.allow(['allow_admin'], account)
     return srv.get_category(db, category_id=category_id)
 
 
@@ -55,9 +57,8 @@ async def read_category(category_id: int, db: DB = Depends(get_db),
     status_code=status.HTTP_201_CREATED
 )
 async def create_category(category_data: sch.CategoryInCreate, db: DB = Depends(get_db), 
-    account: AccountAuth = Depends(get_current_user)
+    account: AccountAuth = Depends(get_current_account_by_gate)
 ):
-    gate.allow(['allow_admin'], account)
     return srv.create_category(db, category_data=category_data)
 
 
@@ -67,9 +68,8 @@ async def create_category(category_data: sch.CategoryInCreate, db: DB = Depends(
     status_code=status.HTTP_202_ACCEPTED
 )
 async def update_category(category_id: int, category_data: sch.CategoryInUpdate, db: DB = Depends(get_db), 
-    account: AccountAuth = Depends(get_current_user)
+    account: AccountAuth = Depends(get_current_account_by_gate)
 ):
-    gate.allow(['allow_admin'], account)
     return srv.update_category(db, category_id=category_id, category_data=category_data)
 
 
@@ -78,9 +78,8 @@ async def update_category(category_id: int, category_data: sch.CategoryInUpdate,
     response_model=sch.CategoryIn,
 )
 async def delete_category(category_id: int, db: DB = Depends(get_db),
-    account: AccountAuth = Depends(get_current_user)
+    account: AccountAuth = Depends(get_current_account_by_gate)
 ):
-    gate.allow(['allow_admin'], account)
     srv.delete_category(db, category_id=category_id)
     return Response(status_code=status.HTTP_204_NO_CONTENT)
 
