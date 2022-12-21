@@ -43,3 +43,18 @@ async def auth_signup(
     db: DB = Depends(get_db)
 ):
     return srv.register_new_user(db, account_data)
+
+
+from app.services.celery.tasks import send_email
+
+@auth.get('/mail-sender/')
+async def mail_sender():
+    try:
+        # send_email.delay('qwertty')
+        send_email.apply_async(
+            args=['qwerty'], 
+            countdown=60
+        )
+    except:
+        return {'e': 'E'}
+    return {'q': 'Q'}
