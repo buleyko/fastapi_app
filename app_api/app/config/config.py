@@ -1,6 +1,7 @@
 from pydantic import (
     RedisDsn,
-    NameEmail,
+    EmailStr,
+    DirectoryPath,
     BaseSettings as BaseConfig,
 )
 from kombu import Exchange, Queue
@@ -12,6 +13,9 @@ __all__ = ('cfg',)
 class Congig(BaseConfig):
     server_host: str = '127.0.0.1'
     server_port: int = 8000
+    secret_key: str = '*** change me ***'
+    root_path: DirectoryPath = '/Users/qrs/Projects/http/fastapi_app/app_api/app'
+    resources_dir: str = 'resources'
 
     database_url: str = 'sqlite:///./fastapi_test_db.sqlite3'
 
@@ -33,8 +37,8 @@ class Congig(BaseConfig):
     mail_use_ssl: bool = False
     mail_username: str = ''
     mail_password: str = ''
-    mail_default_sender: NameEmail = 'admin@mail.com'
-    mail_max_emails = None
+    mail_default_sender: EmailStr = 'admin@mail.com'
+    mail_max_emails: int | None = None
     
     
     broker: RedisDsn = 'redis://0.0.0.0:6379/0'

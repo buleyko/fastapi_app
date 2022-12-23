@@ -25,7 +25,7 @@ adm_account = APIRouter(
 )
 
 async def get_current_account_by_gate(account: AccountAuth = Depends(get_current_user)):
-    gate.allow(['allow_admin'], account):
+    gate.allow(['allow_admin'], account)
     return account
 
 
@@ -40,7 +40,7 @@ async def read_accounts(skip: int = 0, limit: int = cfg.items_in_list, db: DB = 
 
 
 
-@adm_account.get("/{account_id}/show/", 
+@adm_account.get('/{account_id}/show/', 
     response_model=sch.AccountInItem,
     status_code=status.HTTP_200_OK
 )

@@ -85,6 +85,9 @@ def delete_category(db: DB, category_id: int):
 
 
 '''
+item_service: ItemsService = Depends()
+
+
 class ItemsService:
     def __init__(self, session: Session = Depends(get_session)):
         self.session = session
@@ -102,19 +105,11 @@ class ItemsService:
         )
         return items
 
-    def get(
-        self,
-        user_id: int,
-        Item_id: int
-    ) -> tables.Item:
+    def get(self, user_id: int, Item_id: int) -> tables.Item:
         Item = self._get(user_id, Item_id)
         return Item
 
-    def create_many(
-        self,
-        user_id: int,
-        Items_data: List[models.ItemCreate],
-    ) -> List[tables.Item]:
+    def create_many(self, user_id: int, Items_data: List[models.ItemCreate]) -> List[tables.Item]:
         items = [
             tables.Item(
                 **Item_data.dict(),
@@ -126,11 +121,7 @@ class ItemsService:
         self.session.commit()
         return items
 
-    def create(
-        self,
-        user_id: int,
-        Item_data: models.ItemCreate,
-    ) -> tables.Item:
+    def create(self, user_id: int, Item_data: models.ItemCreate) -> tables.Item:
         Item = tables.Item(
             **Item_data.dict(),
             user_id=user_id,
@@ -139,23 +130,14 @@ class ItemsService:
         self.session.commit()
         return Item
 
-    def update(
-        self,
-        user_id: int,
-        Item_id: int,
-        Item_data: models.ItemUpdate,
-    ) -> tables.Item:
+    def update(self, user_id: int, Item_id: int, Item_data: models.ItemUpdate) -> tables.Item:
         Item = self._get(user_id, Item_id)
         for field, value in Item_data:
             setattr(Item, field, value)
         self.session.commit()
         return Item
 
-    def delete(
-        self,
-        user_id: int,
-        Item_id: int,
-    ):
+    def delete(self, user_id: int, Item_id: int):
         Item = self._get(user_id, Item_id)
         self.session.delete(Item)
         self.session.commit()

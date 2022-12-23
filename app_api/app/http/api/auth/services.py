@@ -1,17 +1,22 @@
 from app.vendors.dependencies.database import DB
 from app.http.api.auth.utils.jwt import create_token
+from app.services.celery.tasks import send_email
+from app.vendors.helpers import mail as m
 from fastapi import (
+	Request,
 	HTTPException,
 	status,
 )
+import base64
 from sqlalchemy import or_
 from app import models as mdl
 from . import schemas as sch
 from app.config import cfg
 
 
+	
 
-def register_new_user(db: DB, account_data: sch.AccountCreate) -> sch.Token:
+def register_new_user(request: Request, db: DB, account_data: sch.AccountCreate) -> sch.Token:
 	account = mdl.Account.get_first_item_by_filter(
 		db, _or=True, email=account_data.email, username=account_data.username
 	)
@@ -42,6 +47,15 @@ def register_new_user(db: DB, account_data: sch.AccountCreate) -> sch.Token:
 	db.session.add(profile)
 	db.session.commit()
 
+	try:
+		email_data = m.get_activate_account_mail(request, account, 'mail/activate_account.html')
+		send_email.apply_async(
+			args=[email_data], 
+			countdown=60
+		)
+	except:
+		pass 
+
 	return create_token(account)
 
 
@@ -66,3 +80,14 @@ def authenticate_user(db: DB, username: str, password: str) -> sch.Token:
 			headers={'WWW-Authenticate': 'Bearer'},
 		)
 	return create_token(account)
+
+
+def activate_account(db: DB, uid: str, token: str):
+	raw_uid = eval(base64.b64decode(uid))['uid']
+	account_id = int(raw_uid.split(':')[0])
+	account = mdl.Account.get_first_item_by_filter(db, id=account_id)
+	account.is_activated = True
+	db.session.add(account)
+	db.session.commit()
+
+

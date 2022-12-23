@@ -26,7 +26,7 @@ adm_category = APIRouter(
 
 
 async def get_current_account_by_gate(account: AccountAuth = Depends(get_current_user)):
-    gate.allow(['allow_admin'], account):
+    gate.allow(['allow_admin'], account)
     return account
 
 

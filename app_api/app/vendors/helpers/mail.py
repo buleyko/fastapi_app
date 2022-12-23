@@ -1,62 +1,66 @@
-import smtplib, ssl
-from email.mime.multipart import MIMEMultipart
-from email.mime.text import MIMEText
-# from email.mime.application import MIMEApplication
+from pathlib import Path
+from .token import get_user_uid_token
 from app.config import cfg
+from jinja2 import (
+	Environment, 
+	PackageLoader, 
+	select_autoescape, 
+	FileSystemLoader, 
+)
 
 
 
-def get_mail_text(text_key, **kwargs):
-	text = '''\
-		Hi,
-		How are you?
-		Real Python has many great tutorials:
-		www.realpython.com'''
-	html = '''\
-		<html>
-	  		<body>
-	    		<p>Hi,<br>
-	       		How are you?<br>
-	       		<a href="http://www.realpython.com">Real Python</a> 
-	       		has many great tutorials.
-	    		</p>
-	  		</body>
-		</html>
-	'''
-	return txt, html
+def get_chunks_receivers(receivers):
+	for i in range(0, len(receivers), cfg.mail_max_emails):
+		yield lst[i : i + n]
 
 
 
-def get_email_body(mail_template):
-	pass
-
-
-def attach_file_to_email(email_message, filename, extra_headers=None):
-	with open(filename, 'rb') as f:
-		file_attachment = MIMEApplication(f.read())
-   
-	file_attachment.add_header('Content-Disposition', f'attachment; filename= {filename}')
-
-	if extra_headers is not None:
-		for name, value in extra_headers.items():
-			file_attachment.add_header(name, value)
-	email_message.attach(file_attachment)
+def get_mail_html_with_data(html_template, **kwargs):
+	root_path = cfg.root_path 
+	template_path  = root_path / cfg.resources_dir
+	env = Environment(
+		loader=FileSystemLoader(template_path, encoding='utf-8'),
+		autoescape=select_autoescape(['html', 'xml'])
+	)
+	template = env.get_template(html_template)
+	return template.render(**kwargs)
 
 
 
-def email_sender(receiver_email):
-	context = ssl.create_default_context()
+def get_activate_account_mail(request, user, html_template = None, files = []):
+	subject = 'Activate account'
+	user_uid_token = '/'.join(get_user_uid_token(user))
+	activation_account_link = f'{request.base_url}auth/account_activate/{user_uid_token}'
+	mail_data = {
+		'sender': cfg.mail_default_sender,
+		'to': user.email,
+		'subject': subject,
+		'activation_account_link': activation_account_link,
+		'files': files,
+	}
+	mail_data['html'] = get_mail_html_with_data(
+		html_template, 
+		subject = subject,
+		sender = mail_data['sender'],
+		activation_account_link = activation_account_link,
+	)
+	return mail_data
 
-	if cfg.mail_use_ssl and cfg.mail_port == 465:
-		with smtplib.SMTP_SSL(smtp_server, port, context=context) as server:
-			server.login(sender_email, password)
-			server.sendmail(sender_email, receiver_email, message)
 
 
-	if cfg.mail_use_tls and cfg.mail_port == 587:
-		with smtplib.SMTP(smtp_server, port) as server:
-			server.ehlo()
-			server.starttls(context=context)
-			server.ehlo()
-			server.login(sender_email, password)
-			server.sendmail(sender_email, receiver_email, message)
+def get_mail_data(to_emails=[], html_template = None, **kwargs):
+	subject = kwargs.get('subject', '--?--')
+	files = kwargs.get('files', [])
+	mail_data = {
+		'sender': cfg.mail_default_sender,
+		'to': to_email,
+		'subject': subject,
+		'files': files,
+	}
+	try:
+		mail_data['html'] = get_mail_html_with_data(html_template, **kwargs)
+	except:
+		mail_data['html'] = ''
+	return mail_data
+
