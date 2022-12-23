@@ -1,5 +1,6 @@
 from fastapi.security import OAuth2PasswordRequestForm
 from app.vendors.utils.gate import gate
+from app.tasks.logger import write_to_log
 from fastapi import (
     Depends, 
     APIRouter, 
@@ -7,6 +8,7 @@ from fastapi import (
     Request,
     HTTPException,
     status, 
+    BackgroundTasks,
 )
 from app.vendors.dependencies.database import (
     get_db, 
@@ -30,11 +32,13 @@ auth = APIRouter(
     status_code=status.HTTP_200_OK
 )
 async def auth_signin(
+    background_tasks: BackgroundTasks,
     auth_data: OAuth2PasswordRequestForm = Depends(), 
-    db: DB = Depends(get_db)
+    db: DB = Depends(get_db),
 ):
-    return srv.authenticate_user(db, auth_data.username, auth_data.password)
-
+    user_token = srv.authenticate_user(db, auth_data.username, auth_data.password)
+    background_tasks.add_task(write_to_log, auth_data.username, message='SIGN-IN')
+    return user_token
 
 
 @auth.post('/sign-up/', 

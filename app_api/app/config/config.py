@@ -16,6 +16,7 @@ class Congig(BaseConfig):
     secret_key: str = '*** change me ***'
     root_path: DirectoryPath = '/Users/qrs/Projects/http/fastapi_app/app_api/app'
     resources_dir: str = 'resources'
+    log_path: DirectoryPath = '/Users/qrs/Projects/http/fastapi_app/app_api/app/log'
 
     database_url: str = 'sqlite:///./fastapi_test_db.sqlite3'
 

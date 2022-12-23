@@ -2,6 +2,8 @@
 
 JWT
 
+$ mkdir -p app/log
+
 $ alembic init alembic
 
 In alembic.ini:
