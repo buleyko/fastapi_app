@@ -2,6 +2,7 @@ from app.vendors.dependencies.database import DB
 from app.http.api.auth.utils.jwt import create_token
 from app.services.celery.tasks import send_email
 from app.vendors.helpers import mail as m
+from app.tasks.logger import write_to_log
 from fastapi import (
 	Request,
 	HTTPException,
@@ -14,6 +15,9 @@ from . import schemas as sch
 from app.config import cfg
 
 
+
+def logger(background_tasks, username, message):
+	background_tasks.add_task(write_to_log, username, message)
 	
 
 def register_new_user(request: Request, db: DB, account_data: sch.AccountCreate) -> sch.Token:

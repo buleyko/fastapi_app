@@ -23,7 +23,7 @@ account = APIRouter(
 
 
 
-@account.post('/list/', 
+@account.get('/list/', 
     response_model=list[sch.AccountOutItem], 
     status_code=status.HTTP_200_OK
 )
@@ -37,3 +37,16 @@ async def read_accounts(skip: int = 0, limit: int = cfg.items_in_list, db: DB = 
 )
 async def read_account(account_id: int, db: DB = Depends(get_db)):
     return srv.get_account(db, account_id=account_id)
+
+
+# ----------------------------------------------------
+from fastapi import (
+    File, 
+    UploadFile,
+)
+# response_model=sch.AccountCreate,
+# status_code=status.HTTP_200_OK
+@account.post('/image-upload/')
+async def read_account(files: list[UploadFile]):
+    res = await srv.image_upload(files)
+    return {'q': 'Q'}

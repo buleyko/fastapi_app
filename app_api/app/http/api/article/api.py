@@ -23,7 +23,7 @@ article = APIRouter(
 
 
 
-@article.post('/list/', 
+@article.get('/list/', 
     response_model=list[sch.ArticleOutItem], 
     status_code=status.HTTP_200_OK
 )

@@ -20,7 +20,8 @@ def get_accounts(db: DB, skip: int = 0, limit: int = cfg.items_in_list):
 	select_accounts = db.select(
 			mdl.Account.id, mdl.Account.email, mdl.Account.username,
 			mdl.Account.is_blocked, mdl.Account.is_shown, mdl.Account.is_activated,
-			mdl.Profile.first_name, mdl.Profile.last_name, mdl.Profile.female,
+			mdl.Profile.first_name, mdl.Profile.last_name, 
+			mdl.Profile.female, mdl.Profile.photo,
 			func.count(mdl.Article.id).label('articles_count')
 		).\
 		outerjoin(mdl.Account.articles).outerjoin(mdl.Account.profile).\
@@ -36,7 +37,8 @@ def get_account(db: DB, account_id: int):
 	select_account = db.select(
 			mdl.Account.id, mdl.Account.email, mdl.Account.username,
 			mdl.Account.is_blocked, mdl.Account.is_shown, mdl.Account.is_activated,
-			mdl.Profile.first_name, mdl.Profile.last_name, mdl.Profile.female,
+			mdl.Profile.first_name, mdl.Profile.last_name, 
+			mdl.Profile.female, mdl.Profile.photo,
 			func.count(mdl.Article.id).label('articles_count')
 		).\
 		filter_by(id=account_id).\

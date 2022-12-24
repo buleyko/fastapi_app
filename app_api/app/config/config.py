@@ -18,6 +18,11 @@ class Congig(BaseConfig):
     resources_dir: str = 'resources'
     log_path: DirectoryPath = '/Users/qrs/Projects/http/fastapi_app/app_api/app/log'
 
+    photo_width: int = 180
+    allowed_image_extensions: list[str] = ['jpg', 'jpeg', 'png',]
+    upload_path_folder: str = 'storage/images'
+    chunk_size = 1024
+
     database_url: str = 'sqlite:///./fastapi_test_db.sqlite3'
 
     languages: list = ['eu', 'ru']

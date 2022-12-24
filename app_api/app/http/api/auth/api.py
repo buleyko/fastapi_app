@@ -37,7 +37,7 @@ async def auth_signin(
     db: DB = Depends(get_db),
 ):
     user_token = srv.authenticate_user(db, auth_data.username, auth_data.password)
-    background_tasks.add_task(write_to_log, auth_data.username, message='SIGN-IN')
+    srv.logger(background_tasks, auth_data.username, message='SIGN-IN')
     return user_token
 
 

@@ -23,7 +23,7 @@ category = APIRouter(
 
 
 
-@category.post('/list/', 
+@category.get('/list/', 
     response_model=list[sch.CategoryOutItem],
     status_code=status.HTTP_200_OK
 )

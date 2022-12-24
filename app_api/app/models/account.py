@@ -9,6 +9,7 @@ from app.vendors.mixins.model import (
 	TimestampsMixin, 
 	ValidMixin,
 	HelpersMixin,
+	ImageMixin,
 )
 from sqlalchemy import (
 	Column, 
@@ -60,7 +61,7 @@ class Account(ValidMixin, TimestampsMixin, HelpersMixin, Base):
 
 
 
-class Profile(HelpersMixin, Base):
+class Profile(HelpersMixin, ImageMixin, Base):
 	__tablename__ = 'profiles'
 
 	first_name = Column(
@@ -68,6 +69,9 @@ class Profile(HelpersMixin, Base):
 	)
 	last_name = Column(
 		String(80)
+	)
+	photo = Column(
+		String(255)
 	)
 	female = Column(
 		Boolean,

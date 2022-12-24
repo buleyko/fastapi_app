@@ -3,6 +3,7 @@ from pydantic import (
 	ValidationError, 
 	validator,
 	Field,
+	HttpUrl,
 )
 from typing import Any
 from enum import Enum
@@ -11,6 +12,9 @@ from app.vendors.helpers.validators import (
 	passwd_validation_check,
 )
 
+class Photo(BaseModel):
+	url: str # HttpUrl
+	name: str
 
 class AccountInItem(BaseModel):
 	id: int
@@ -24,14 +28,20 @@ class AccountInItem(BaseModel):
 	is_activated: bool
 	articles_count: int | None = None
 
+	photo: Photo | None = None
+
 	class Config:
 		orm_mode = True
+
+
 
 
 class ProfileInBase(BaseModel):
 	first_name: str
 	last_name: str
 	female: bool
+
+	photo: Photo | None = None
 
 class ProfileIn(ProfileInBase):
 	id: int 
