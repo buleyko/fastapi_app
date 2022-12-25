@@ -55,10 +55,10 @@ class ArticleData(HelpersMixin, Base):
 		String(10), 
 	) 
 	name = Column(
-		String,
+		String(180),
 	)
 	short_desc = Column(
-		String,
+		String(400),
 	)
 	body = Column(
 		Text, 

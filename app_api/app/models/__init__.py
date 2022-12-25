@@ -15,3 +15,4 @@ from .tag import (
 	Tag, 
 	TagItem,
 )
+from .media import Media
