@@ -2,7 +2,7 @@
 
 JWT
 
-$ mkdir -p app/log
+$ mkdir -p app/log app/storage/{images,video,audio}
 
 $ alembic init alembic
 

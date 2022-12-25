@@ -3,7 +3,9 @@ from sqlalchemy.orm.exc import NoResultFound
 from fastapi import (
 	HTTPException,
 	status,
+	UploadFile
 )
+from fastapi import UploadFile
 from sqlalchemy import (
 	func, 
 	desc,
@@ -53,9 +55,24 @@ def get_account(db: DB, account_id: int):
 
 
 # ---------------------------------------
-
+import shutil 
+import aiofiles
 async def image_upload(files):
 	for file in files:
-		photo = await mdl.Profile.save_image(file)
+		file_path = cfg.root_path / cfg.upload_folder_dir / 'images' / file.filename
+		with open(file_path, 'wb') as _fb:
+			shutil.copyfileobj(file.file, _fb)
+		return file.filename
+		# async with aiofiles.open(file_path, 'wb') as fh:
+		# 	while True:
+		# 		chunk = await file.read(cfg.chunk_size)
+		# 		if not chunk:
+		# 			break
+		# 		await fh.write(chunk)
+
+from app.vendors.helpers.file import write_file
+def video_upload(file):
+	dir_path = cfg.root_path / cfg.upload_folder_dir / 'video'
+	return write_file(file, dir_path)
 
 

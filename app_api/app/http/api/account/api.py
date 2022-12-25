@@ -44,9 +44,17 @@ from fastapi import (
     File, 
     UploadFile,
 )
+import shutil 
 # response_model=sch.AccountCreate,
 # status_code=status.HTTP_200_OK
 @account.post('/image-upload/')
-async def read_account(files: list[UploadFile]):
+async def image_upload(files: list[UploadFile]):
     res = await srv.image_upload(files)
     return {'q': 'Q'}
+
+from app.vendors.helpers.file import write_file
+@account.post('/video-upload/')
+async def video_upload(file: UploadFile):
+    return srv.video_upload(file)
+
+

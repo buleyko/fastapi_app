@@ -18,10 +18,9 @@ def get_new_image_dimensions(original_dimensions, new_width: int):
 
 async def resize_image(img_path, width: int):
     if img_path:
-        with Image.open(img_path) as image:
+        async with Image.open(img_path) as image:
             new_size = get_new_image_dimensions(image.size, width)
             if new_size == image.size:
                 return
-
             res = await image.resize(new_size, Image.ANTIALIAS)
             return res

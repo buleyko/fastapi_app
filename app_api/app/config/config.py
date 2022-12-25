@@ -1,3 +1,4 @@
+from pathlib import Path
 from pydantic import (
     RedisDsn,
     EmailStr,
@@ -14,13 +15,17 @@ class Congig(BaseConfig):
     server_host: str = '127.0.0.1'
     server_port: int = 8000
     secret_key: str = '*** change me ***'
-    root_path: DirectoryPath = '/Users/qrs/Projects/http/fastapi_app/app_api/app'
+    root_path: DirectoryPath = Path(__file__).parents[1]
     resources_dir: str = 'resources'
-    log_path: DirectoryPath = '/Users/qrs/Projects/http/fastapi_app/app_api/app/log'
+    log_dir: str = 'log'
 
     photo_width: int = 180
-    allowed_image_extensions: list[str] = ['jpg', 'jpeg', 'png',]
-    upload_path_folder: str = 'storage/images'
+    allowed_file_extensions: dict = {
+        'image': ['jpg', 'jpeg', 'png',],
+        'video': ['mp4',],
+        'audio': ['mp3',],
+    }
+    upload_folder_dir: str = 'storage'
     chunk_size = 1024
 
     database_url: str = 'sqlite:///./fastapi_test_db.sqlite3'
@@ -36,7 +41,7 @@ class Congig(BaseConfig):
 
     items_in_list: int = 15
 
-    
+    activated_account_by_email: bool = False
     mail_server: str = 'localhost'
     mail_port: int = 1025
     mail_use_tls: bool = False

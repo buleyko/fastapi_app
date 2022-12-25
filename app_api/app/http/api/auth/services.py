@@ -51,14 +51,15 @@ def register_new_user(request: Request, db: DB, account_data: sch.AccountCreate)
 	db.session.add(profile)
 	db.session.commit()
 
-	try:
-		email_data = m.get_activate_account_mail(request, account, 'mail/activate_account.html')
-		send_email.apply_async(
-			args=[email_data], 
-			countdown=60
-		)
-	except:
-		pass 
+	if cfg.activated_account_by_email:
+		try:
+			email_data = m.get_activate_account_mail(request, account, 'mail/activate_account.html')
+			send_email.apply_async(
+				args=[email_data], 
+				countdown=60
+			)
+		except:
+			pass 
 
 	return create_token(account)
 
