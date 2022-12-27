@@ -5,6 +5,8 @@ from fastapi import (
     Response, 
     HTTPException,
     status, 
+    Path,
+    Query,
 )
 from app.vendors.dependencies.database import (
     get_db, 
@@ -27,7 +29,11 @@ account = APIRouter(
     response_model=list[sch.AccountOutItem], 
     status_code=status.HTTP_200_OK
 )
-async def read_accounts(skip: int = 0, limit: int = cfg.items_in_list, db: DB = Depends(get_db)):
+async def read_accounts(
+    skip: int = 0,
+    limit: int = Query(cfg.items_in_list, gt=1), 
+    db: DB = Depends(get_db)
+):
     return srv.get_accounts(db, skip=skip, limit=limit)
 
 
@@ -35,7 +41,7 @@ async def read_accounts(skip: int = 0, limit: int = cfg.items_in_list, db: DB = 
     response_model=sch.AccountOutItem,
     status_code=status.HTTP_200_OK
 )
-async def read_account(account_id: int, db: DB = Depends(get_db)):
+async def read_account(account_id: int = Path(..., gt=1), db: DB = Depends(get_db)):
     return srv.get_account(db, account_id=account_id)
 
 

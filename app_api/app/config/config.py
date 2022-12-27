@@ -19,7 +19,7 @@ class Congig(BaseConfig):
     resources_dir: str = 'resources'
     log_dir: str = 'log'
 
-    photo_width: int = 180
+    photo_width: int = 80
     allowed_file_extensions: dict = {
         'image': ['jpg', 'jpeg', 'png',],
         'video': ['mp4',],

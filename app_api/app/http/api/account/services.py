@@ -57,7 +57,7 @@ def get_account(db: DB, account_id: int):
 # ---------------------------------------
 import shutil 
 import aiofiles
-async def image_upload(files):
+async def images_upload(files):
 	for file in files:
 		file_path = cfg.root_path / cfg.upload_folder_dir / 'images' / file.filename
 		with open(file_path, 'wb') as _fb:

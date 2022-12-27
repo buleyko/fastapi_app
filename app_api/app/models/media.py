@@ -38,5 +38,5 @@ class Media(ValidMixin, TimestampsMixin, Base):
 	)
 	account = relationship(
 		'Account', 
-		back_populates='articles'
+		back_populates='media'
 	)

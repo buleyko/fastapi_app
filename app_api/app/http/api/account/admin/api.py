@@ -6,7 +6,9 @@ from fastapi import (
     status, 
     File, 
     UploadFile,
+    Form,
 )
+from pydantic import EmailStr
 from app.vendors.dependencies.database import (
     get_db, 
     DB,
@@ -18,6 +20,7 @@ from app.http.api.auth import (
 )
 from . import services as srv
 from . import schemas as sch
+from . import policy as pl 
 from app.config import cfg
 
 
@@ -52,6 +55,7 @@ async def read_account(account_id: int, db: DB = Depends(get_db),
     return srv.get_account(db, account_id=account_id)
 
 
+
 @adm_account.post('/create/', 
     response_model=sch.AccountIn,
     status_code=status.HTTP_201_CREATED
@@ -60,6 +64,46 @@ async def create_account(account_data: sch.AccountInCreate, db: DB = Depends(get
     account: AccountAuth = Depends(get_current_account_by_gate)
 ):
     return srv.create_account(db, account_data=account_data)
+
+
+
+from app.vendors.helpers.file import async_write_file
+from app.vendors.helpers.image import resize_image
+@adm_account.post('/create-form/', 
+    response_model=sch.AccountIn,
+    status_code=status.HTTP_201_CREATED
+)
+async def create_account_form(
+    first_name: str = Form(...),
+    last_name: str = Form(...),
+    female: bool = Form(...),
+    email: EmailStr = Form(...),
+    username: str = Form(...),
+    is_blocked: bool = Form(...),
+    is_shown: bool = Form(...),
+    password: str = Form(...),
+    password_confirmation: str = Form(...),
+    photo: UploadFile | None = None,
+    db: DB = Depends(get_db), 
+    account: AccountAuth = Depends(get_current_account_by_gate)
+):
+    profile_data = sch.ProfileInCreate(
+        first_name = first_name,
+        last_name = last_name,
+        female = female,
+        photo = None,
+    )
+    account_data = sch.AccountInCreate(
+        email = email,
+        username = username,
+        is_blocked = is_blocked,
+        is_shown = is_shown,
+        password = password,
+        password_confirmation = password_confirmation,
+        profile = profile_data
+    )
+    return srv.create_account_form(db, account_data=account_data, photo=photo)
+
 
 
 

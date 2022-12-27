@@ -1,5 +1,10 @@
 from app.vendors.base.database import Base
 from app.vendors.utils.crypto import password_context
+from app.vendors.helpers.image import resize_image
+from app.vendors.helpers.file import (
+	write_file, 
+	get_or_create_storage_dir,
+)
 from sqlalchemy.orm import (
 	relationship,
 	column_property,
@@ -18,6 +23,7 @@ from sqlalchemy import (
 	Boolean,
 	JSON,
 )
+from app.config import cfg
 
 
 class Account(ValidMixin, TimestampsMixin, HelpersMixin, Base):
@@ -43,6 +49,10 @@ class Account(ValidMixin, TimestampsMixin, HelpersMixin, Base):
 	)
 	articles = relationship(
 		'Article', 
+		back_populates='account'
+	)
+	media = relationship(
+		'Media', 
 		back_populates='account'
 	)
 	profile = relationship(
@@ -96,3 +106,19 @@ class Profile(HelpersMixin, Base):
 	# @sex.setter
 	# def sex(self, v):
 	# 	self._sex = v == 'female'
+
+	@staticmethod
+	def save_and_resize_photo(photo, ext_path: str, photo_width: int):
+		if not photo:
+			return None
+		try:
+			storage_path = cfg.root_path / cfg.upload_folder_dir
+			dir_path = get_or_create_storage_dir(storage_path, ext_path)
+			photo_file_path = write_file(photo, dir_path)
+			resize_image(photo_file_path, photo_width)
+			photo_file_subpath = f'{ext_path}/{photo.filename}'
+		except:
+			photo_file_subpath = None
+
+		return photo_file_subpath
+

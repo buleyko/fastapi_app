@@ -52,6 +52,43 @@ def get_account(db: DB, account_id: int):
 		)
 	return account
 
+from app.vendors.helpers.file import write_file, get_or_create_storage_dir
+from app.vendors.helpers.image import resize_image
+def create_account_form(db: DB, account_data: sch.AccountInCreate, photo):
+	account = mdl.Account.get_first_item_by_filter(
+		db, _or=True, email=account_data.email, username=account_data.username
+	)
+	if account is not None:
+		raise HTTPException(
+			status_code=status.HTTP_400_BAD_REQUEST,
+			detail='Username or email not unique',
+		) from None
+
+	new_account = mdl.Account(
+		email=account_data.email,
+		username=account_data.username,
+		is_blocked=account_data.is_blocked,
+		is_shown=account_data.is_shown,
+		password=mdl.Account.get_hashed_password(account_data.password),
+	)
+	db.session.add(new_account)
+	db.session.commit()
+	db.session.refresh(new_account)
+
+	new_profile = mdl.Profile(
+		first_name=account_data.profile.first_name,
+		last_name=account_data.profile.first_name,
+		female=account_data.profile.female,
+		account_id=new_account.id,
+	)
+	ext_photo_path = f'images/account/{account_data.username}/profile'
+	photo_file_subpath = mdl.Profile.save_and_resize_photo(photo, ext_photo_path, cfg.photo_width)
+	new_profile.photo=photo_file_subpath
+	db.session.add(new_profile)
+	db.session.commit()
+
+	return new_account
+
 
 def create_account(db: DB, account_data: sch.AccountInCreate):
 	account = mdl.Account.get_first_item_by_filter(
