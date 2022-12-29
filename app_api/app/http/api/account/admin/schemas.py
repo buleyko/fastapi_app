@@ -11,6 +11,8 @@ from app.vendors.helpers.validators import (
 	email_validation_check,
 	passwd_validation_check,
 )
+from dataclasses import dataclass
+
 
 class Photo(BaseModel):
 	url: str # HttpUrl
@@ -32,8 +34,6 @@ class AccountInItem(BaseModel):
 
 	class Config:
 		orm_mode = True
-
-
 
 
 class ProfileInBase(BaseModel):
@@ -113,3 +113,6 @@ class AccountInUpdate(AccountInBase):
 		if 'password' in values and v != values['password']:
 			raise ValueError('passwords do not match')
 		return v
+
+
+

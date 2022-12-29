@@ -15,7 +15,6 @@ from app.config import cfg
 
 
 
-
 def get_accounts(db: DB, skip: int = 0, limit: int = cfg.items_in_list):
 	select_accounts = db.select(
 			mdl.Account.id, mdl.Account.email, mdl.Account.username,
@@ -52,9 +51,8 @@ def get_account(db: DB, account_id: int):
 		)
 	return account
 
-from app.vendors.helpers.file import write_file, get_or_create_storage_dir
-from app.vendors.helpers.image import resize_image
-def create_account_form(db: DB, account_data: sch.AccountInCreate, photo):
+
+def create_account_form(db: DB, bg_task, account_data: sch.AccountInCreate, photo):
 	account = mdl.Account.get_first_item_by_filter(
 		db, _or=True, email=account_data.email, username=account_data.username
 	)
@@ -81,9 +79,12 @@ def create_account_form(db: DB, account_data: sch.AccountInCreate, photo):
 		female=account_data.profile.female,
 		account_id=new_account.id,
 	)
-	ext_photo_path = f'images/account/{account_data.username}/profile'
-	photo_file_subpath = mdl.Profile.save_and_resize_photo(photo, ext_photo_path, cfg.photo_width)
-	new_profile.photo=photo_file_subpath
+	if photo:
+		ext_photo_path = f'images/account/{account_data.username}/profile'
+		bg_task.add_task(mdl.Profile.save_and_resize_photo, photo, ext_photo_path, cfg.photo_width)
+		# photo_file_subpath = mdl.Profile.save_and_resize_photo(photo, ext_photo_path, cfg.photo_width)
+		# new_profile.photo=photo_file_subpath
+		new_profile.photo=f'{ext_photo_path}/{photo.filename}'
 	db.session.add(new_profile)
 	db.session.commit()
 
@@ -120,7 +121,6 @@ def create_account(db: DB, account_data: sch.AccountInCreate):
 	db.session.add(new_profile)
 	db.session.commit()
 	return new_account
-
 
 
 def update_account(db: DB, account_id: int, account_data: sch.AccountInUpdate):

@@ -11,7 +11,7 @@ __all__ = ('cfg',)
 
 
 
-class Congig(BaseConfig):
+class Config(BaseConfig):
     server_host: str = '127.0.0.1'
     server_port: int = 8000
     secret_key: str = '*** change me ***'
@@ -74,7 +74,7 @@ class Congig(BaseConfig):
     
 
 
-cfg = Congig(
+cfg = Config(
     _env_file = '.env',
     _env_file_encoding = 'utf-8'
 )

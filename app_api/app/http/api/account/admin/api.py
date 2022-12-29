@@ -7,6 +7,7 @@ from fastapi import (
     File, 
     UploadFile,
     Form,
+    BackgroundTasks,
 )
 from pydantic import EmailStr
 from app.vendors.dependencies.database import (
@@ -18,6 +19,7 @@ from app.http.api.auth import (
     get_current_user,
     Account as AccountAuth,
 )
+from dataclasses import dataclass
 from . import services as srv
 from . import schemas as sch
 from . import policy as pl 
@@ -44,7 +46,6 @@ async def read_accounts(skip: int = 0, limit: int = cfg.items_in_list, db: DB = 
     return srv.get_accounts(db, skip=skip, limit=limit)
 
 
-
 @adm_account.get('/{account_id}/show/', 
     response_model=sch.AccountInItem,
     status_code=status.HTTP_200_OK
@@ -53,7 +54,6 @@ async def read_account(account_id: int, db: DB = Depends(get_db),
     account: AccountAuth = Depends(get_current_account_by_gate)
 ):
     return srv.get_account(db, account_id=account_id)
-
 
 
 @adm_account.post('/create/', 
@@ -66,45 +66,46 @@ async def create_account(account_data: sch.AccountInCreate, db: DB = Depends(get
     return srv.create_account(db, account_data=account_data)
 
 
+@dataclass
+class AccountFormData:
+    first_name: str = Form(...)
+    last_name: str = Form(...)
+    female: bool = Form(...)
+    email: EmailStr = Form(...)
+    username: str = Form(...)
+    is_blocked: bool = Form(...)
+    is_shown: bool = Form(...)
+    password: str = Form(...)
+    password_confirmation: str = Form(...)
 
-from app.vendors.helpers.file import async_write_file
-from app.vendors.helpers.image import resize_image
-@adm_account.post('/create-form/', 
+
+@adm_account.post('/create-form/',
     response_model=sch.AccountIn,
     status_code=status.HTTP_201_CREATED
 )
 async def create_account_form(
-    first_name: str = Form(...),
-    last_name: str = Form(...),
-    female: bool = Form(...),
-    email: EmailStr = Form(...),
-    username: str = Form(...),
-    is_blocked: bool = Form(...),
-    is_shown: bool = Form(...),
-    password: str = Form(...),
-    password_confirmation: str = Form(...),
+    bg_tasks: BackgroundTasks,
+    form_data: AccountFormData = Depends(),
     photo: UploadFile | None = None,
     db: DB = Depends(get_db), 
     account: AccountAuth = Depends(get_current_account_by_gate)
 ):
     profile_data = sch.ProfileInCreate(
-        first_name = first_name,
-        last_name = last_name,
-        female = female,
+        first_name = form_data.first_name,
+        last_name = form_data.last_name,
+        female = form_data.female,
         photo = None,
     )
     account_data = sch.AccountInCreate(
-        email = email,
-        username = username,
-        is_blocked = is_blocked,
-        is_shown = is_shown,
-        password = password,
-        password_confirmation = password_confirmation,
+        email = form_data.email,
+        username = form_data.username,
+        is_blocked = form_data.is_blocked,
+        is_shown = form_data.is_shown,
+        password = form_data.password,
+        password_confirmation = form_data.password_confirmation,
         profile = profile_data
     )
-    return srv.create_account_form(db, account_data=account_data, photo=photo)
-
-
+    return srv.create_account_form(db, bg_tasks, account_data=account_data, photo=photo)
 
 
 @adm_account.put('/{account_id}/update/', 
@@ -117,7 +118,6 @@ async def update_account(account_id: int, account_data: sch.AccountInUpdate, db:
     return srv.update_account(db, account_id=account_id, account_data=account_data)
 
 
-
 @adm_account.delete('/{account_id}/delete/', 
     response_model=sch.AccountIn,
 )
@@ -126,4 +126,40 @@ async def delete_account(account_id: int, db: DB = Depends(get_db),
 ):
     srv.delete_account(db, account_id=account_id)
     return Response(status_code=status.HTTP_204_NO_CONTENT)
+
+
+# @adm_account.post('/create-form/', 
+#     response_model=sch.AccountIn,
+#     status_code=status.HTTP_201_CREATED
+# )
+# async def create_account_form(
+#     first_name: str = Form(...),
+#     last_name: str = Form(...),
+#     female: bool = Form(...),
+#     email: EmailStr = Form(...),
+#     username: str = Form(...),
+#     is_blocked: bool = Form(...),
+#     is_shown: bool = Form(...),
+#     password: str = Form(...),
+#     password_confirmation: str = Form(...),
+#     photo: UploadFile | None = None,
+#     db: DB = Depends(get_db), 
+#     account: AccountAuth = Depends(get_current_account_by_gate)
+# ):
+#     profile_data = sch.ProfileInCreate(
+#         first_name = first_name,
+#         last_name = last_name,
+#         female = female,
+#         photo = None,
+#     )
+#     account_data = sch.AccountInCreate(
+#         email = email,
+#         username = username,
+#         is_blocked = is_blocked,
+#         is_shown = is_shown,
+#         password = password,
+#         password_confirmation = password_confirmation,
+#         profile = profile_data
+#     )
+#     return srv.create_account_form(db, account_data=account_data, photo=photo)
 

@@ -17,7 +17,6 @@ from . import schemas as sch
 from app.config import cfg
 
 
-
 def get_categories(db: DB, skip: int = 0, limit: int = cfg.items_in_list):
 	select_categories = db.select(
 			mdl.Category.id, mdl.Category.name, mdl.Category.short_desc,

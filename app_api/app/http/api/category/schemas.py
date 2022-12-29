@@ -1,8 +1,6 @@
 from pydantic import BaseModel
 
 
-
-
 class CategoryOutBase(BaseModel):
 	name: dict
 	short_desc: dict
